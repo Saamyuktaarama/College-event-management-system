@@ -1,5 +1,5 @@
 
-# CEMS - Campus Event Management System
+# CEMS College event management system
 
 CEMS is a web-based event management system designed for use by universities and colleges. It allows event organizers to easily create and manage events, track attendance, and generate reports.
 
