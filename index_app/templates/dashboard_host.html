@@ -1,0 +1,114 @@
+{% extends "base_generic.html" %} {% load static %}
+{% block nav %}
+<div class="collapse navbar-collapse" id="navcol-1" data-bs-spy="scroll" data-bs-smooth-scroll="true">
+	<ul class="navbar-nav mx-auto">
+		<li class="nav-item"><a class="nav-link" data-bss-hover-animate="pulse" href="{% url 'index' %}">Home</a>
+		</li>
+		<li class="nav-item"><a class="nav-link" data-bss-hover-animate="pulse" href="{% url 'event-list' %}">Events</a>
+		</li>
+		<li class="nav-item"><a class="nav-link" href="{% url 'contact' %}">Contact</a></li>
+		{% if user.is_authenticated %}
+		<li class="nav-item"><a class="nav-link" href="{% url 'user-profile' %}">Profile</a></li>
+		<li class="nav-item"><a class="nav-link" href="{% url 'logout' %}">Logout</a></li>
+		{% endif %}
+	</ul>
+	{% if user.is_authenticated %}
+	<a class="btn btn-success shadow active" role="button" href="{{user.get_to_dashboard}}">Dashboard</a>
+	{% else %}
+	<a class="btn btn-primary shadow" role="button" href="{% url 'login' %}">Sign In</a>
+	{% endif %}
+</div>
+{% endblock nav %}
+{% block main %}
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css" rel="stylesheet" />
+<section class="text-light bg-light py-5">
+	<div class="container-fluid">
+		<div class="d-sm-flex justify-content-between align-items-center mb-4" style="padding: 0 100px">
+			<h3 class="text-dark mb-0">Dashboard</h3>
+			<a type="button" class="btn btn-primary" href="?mode=guest">Host Mode</a>
+		</div>
+	</div>
+
+
+	<div class="text-white bg-primary border rounded border-0 border-primary d-flex flex-column justify-content-between flex-lg-row p-4 p-md-5"
+		style="margin: 0 10px 10px">
+		<div class="pb-2 pb-lg-1">
+			<h2 class="fw-bold mb-2">Events Calendar</h2>
+			<p class="mb-0"></p>
+		</div>
+		<div class="my-2">
+			<a class="btn btn-light fs-5 py-2 px-4" role="button" href="#" data-bs-toggle="modal"
+				data-bs-target="#reportModal">Generate Report</a>
+
+			<!-- Modal -->
+			<div class="modal fade modal-centered" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel"
+				aria-hidden="true">
+				<div class="modal-dialog        ">
+					<div class="modal-content text-dark">
+						<div class="modal-header">
+							<h5 class="modal-title fw-bold text-center" id="reportModalLabel">Generate Report</h5>
+							<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+						</div>
+						<div class="modal-body">
+							<div class="lead text-center text-success">Pick event to generate report for below</div>
+							<ul class="list-group list-group-flush my-2 rounded">
+
+								{% for event in user.event_set.all%}
+								<li class="list-group-item row justify-content-between">
+									<span class="col">{{event}}</span>
+									<span class="col">
+										<a href="{% url 'report' event.pk %}">
+											<i class="point fa fa-download ml-1 font-10"></i>
+										</a>
+									</span>
+								</li>
+
+								{% empty %}
+								<li class="list-group-item">No events</li>
+								{% endfor %}
+
+							</ul>
+						</div>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="page-content container note-has-grid my-3">
+		<ul class="nav nav-pills" id="eventTab" role="tablist">
+			{% for category, events in event_dict.items %}
+			{% with category_id=category|slugify %}
+			<li class="nav-item" role="presentation">
+				<button class="nav-link {% if forloop.first %}active{% endif %}" id="{{category_id}}-tab"
+					data-bs-toggle="tab" data-bs-target="#{{category_id}}" type="button" role="tab"
+					aria-controls="{{category_id}}"
+					aria-selected="{% if forloop.first %}true{% else %}false{% endif %}">{{category}}</button>
+			</li>
+			{% endwith %}
+			{% endfor %}
+		</ul>
+
+		<!-- Tab panes -->
+		<div class="tab-content">
+			{% for category, events in event_dict.items %}
+			{% with category_id=category|slugify %}
+			<div class="tab-pane {% if forloop.first %}active{% endif %}" id="{{category_id}}" role="tabpanel"
+				aria-labelledby="{{category_id}}-tab">
+				<div id="note-full-container" class="note-has-grid row justify-content-center">
+
+					{% for event in events %}
+					{% include 'components/event_dash_card.html' with event=event %}
+
+					{% endfor %}
+
+				</div>
+			</div>
+			{% endwith %}
+			{% endfor %}
+
+		</div>
+	</div>
+
+</section>
+{% endblock main %}
